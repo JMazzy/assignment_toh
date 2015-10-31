@@ -2,57 +2,37 @@
 
 # Procedural Tower of Hanoi Assignment
 
-# Build a Ruby program that allows a player to play ToH from the command line, specifying the initial height of the tower.
-# This will give you a chance to create an interactive command-line game. 
-
-# What it should look like:
-#
-# Welcome to Tower of Hanoi!
-# Instructions:
-# Enter where you'd like to move from and to
-# in the format [1,3]. Enter 'q' to quit.
-# Current Board:
-#   
-#  (_)
-# (___)
-#(_____)
-#TTTTTTTTTTTTTTTTTTTTTT
-#   1      2      3
-# Enter move >
-# ...
-
-# Rules: 
-# 1. Only one disk can be moved at a time.
-# 2. Each move consists of taking the upper disk from one of the stacks 
-#    and placing it on top of another stack i.e. a disk can only be moved if it is the uppermost disk on a stack.
-# 3. No disk may be placed on top of a smaller disk.
-
-# 1. Wrap everything in a class 
-# and focus on separating different functionality into methods instead of creating one long run-on game method.
 # Tower of Hanoi Game Class
 class ToH_Game
-  # Game state (playing=0/win=1/quit=-1)
+  # Game state (playing=0 win=1 quit=-1)
   @game_state = 0
 
   # Set up
   # Display welcome message and instructions.
-  # Ask how big the player wants the tower to be
   def welcome
     puts "\n"
     puts "Welcome to Tower of Hanoi!"
+    puts "\n"
+    puts "Goal: Move the entire stack of disks from the starting post to one of the other posts."
+    puts "\n"
+    puts "Rules:"
+    puts "1. Each move consists of moving the top disk in one stack to another stack."
+    puts "2. No disk may be placed on top of a smaller disk."
+    puts "\n"
     puts "Instructions:"
-    puts "Enter where you'd like to move from and to"
-    puts "in the format [1,3]. Enter q to quit."
+    puts "The stacks are labeled with numbers 1-3."
+    puts "Enter where you'd like to move from and to in the format \"1,3\"."
+    puts "Enter q to quit."
     puts "\n"
   end
 
+  # Ask how big the player wants the tower to be
   def ask_tower_size
     # Max tower size
     min_tower_size = 3
     max_tower_size = 9
 
-    puts "How big do you want your tower to be?"
-    puts "(must be between #{min_tower_size} and #{max_tower_size})"
+    puts "Enter the number of disks to use (must be between #{min_tower_size} and #{max_tower_size}) > "
     puts "\n"
 
     tower_size = 0
@@ -75,9 +55,13 @@ class ToH_Game
   end
 
   def tower_piece(piece_size, max_piece_size)
+    # Tower pieces to show relative size
+    # Fill in empty space with spaces so pieces line up
+    # Display a "base" under the tower
+    # Display a "stick" when no piece is present
     pieces = [
-      "        |        ", 
-      "        O        ", 
+      "        |        ", # the "stick", or piece size 0, used for nil rows
+      "        O        ", # piece size 1 (and so on below... piece sizes correspond to array indices)
       "       (O)       ", 
       "      (OOO)      ", 
       "     (OOOOO)     ", 
@@ -86,28 +70,32 @@ class ToH_Game
       "  (OOOOOOOOOOO)  ", 
       " (OOOOOOOOOOOOO) ", 
       "(OOOOOOOOOOOOOOO)", 
-      "TTTTTTTTTTTTTTTTT"
+      "TTTTTTTTTTTTTTTTT" # the "base", or piece size 10, always used under other pieces
     ]
     return pieces[piece_size]
   end
 
-  # 4. Create a render method which prints out the current state of the game board in between turns. 
-  # START SIMPLE! The render method usually gives people the most frustration. 
-  # Start by just printing the game state in numeric form before you try to get creative with your output.
-  # Render Method
+  # Method which prints out the current state of the game board in between turns
   def render(current_game_board, tower_size)
     # Display text 
     puts "Current Board: "
 
+    # array of blank strings, initialized before adding content
     render_rows = ["","","","","","","","","","","",""]
 
-    #Loop through
+    # Loop through to build the rows to render
+    # Display number of rows corresponding to tower height
+    # Display a column for each tower (split into rows for rendering)
     0.upto(tower_size) do |row|
       0.upto(2) do |column|
+        # Display a blank area for "nil" "tower spots"
         if current_game_board[column] == nil or current_game_board[column][row] == nil
+          # Shovel a blank piece into the render row
           render_rows[row] << tower_piece(0,tower_size)
         else
+          # Set piece size to the corresponding board value
           piece_size = current_game_board[column][row]
+          # Shovel the corresponding piece into the render row
           render_rows[row] << tower_piece(piece_size,tower_size)
         end
       end
@@ -118,58 +106,11 @@ class ToH_Game
       puts row
     end
 
-    #Label line
+    #Label line - Display a row with column labels on it under the towers
     puts "[[[[[[[ 1 ]]]]]]][[[[[[[ 2 ]]]]]]][[[[[[[ 3 ]]]]]]]"
-
-    # current_game_board.each do |column|
-    #   column.each do |piece|
-    #     if piece < 10
-    #       print piece
-    #     else
-    #       print " "
-    #     end
-    #   end
-    #   puts "\n"
-    # end
-    # puts "\n"
-
-    # rows = Array.new(tower_size)
-
-    # current_game_board.each do |column|
-    #   blanks = tower_size - column.size
-    #   column.each do |spot|
-
-
-    #   end
-    # end
-
-    # Display number of rows corresponding to tower height
-    # Display a column for each tower
-    # Display a blank area for "nil" "tower spots"
-    # Render tower pieces to show relative size
-
-
-    # Display a row with column labels on it
   end
 
-  # Method to handle moves
-  def move(current_game_board, from_to)
-    from = from_to[0] - 1
-    to = from_to[1] - 1
-
-    puts current_game_board[from].class
-    # Check if the move is valid, if not do nothing but display a message
-    if current_game_board[from].last < current_game_board[to].last
-      # If valid, remove last item in the "from" column
-      # place it in the "to" column (at the end) (array pop and push ?)
-      current_game_board[to].push(current_game_board[from].pop)
-      puts "Moved a piece from #{from + 1} to #{to + 1}"
-    else
-      puts "You cannot place a larger piece on a smaller one!"
-    end
-  end
-
-  # 3. Check for valid user inputs
+  # Method to check for valid user inputs
   def input
     valid = false
 
@@ -187,18 +128,55 @@ class ToH_Game
         break;
       end
 
-      #Otherwise split
+      #Otherwise split input string into an array
       input_array = user_input.split(",")
 
+      # Strip any spaces or newlines from each piece
       input_array.each_index { |i| input_array[i] = input_array[i].strip.to_i }
 
       # Check input to make sure it is valid
-      if input_array.class == Array and input_array.size == 2 and input_array.all?{ |element| element.class == Fixnum }
-        valid = true
-        return input_array
+      if input_array.size == 2 and input_array.all?{ |element| element.class == Fixnum }
+        if input_array.all?{ |num| num > 0 and num < 4 }
+          valid = true
+          return input_array
+        else
+          # message if player enters an invalid stack number
+          puts "Please enter only valid stack numbers (1, 2, or 3)."
+        end
+      else
+        # message if player enters in an incorrect format (resulting in the wrong number or type of arguments)
+        puts "Please enter your move in the format \"1,3\"."
       end
     end
-    return nil
+    #If loop reaches the end without returning, return nil (results in trying over from the beginning of the turn)
+    return nil 
+  end
+
+  # Method to handle moves
+  def move(current_game_board, from_to)
+    # Separate from and to and convert from 1-indexed to 0-indexed
+    from = from_to[0] - 1
+    to = from_to[1] - 1
+
+    # Check if the move is valid, if not do nothing but display a message
+    if current_game_board[from].last < current_game_board[to].last
+      # If valid, remove last item in the "from" column
+      # place it in the "to" column (at the end) (array pop and push ?)
+      current_game_board[to].push(current_game_board[from].pop)
+
+      # Confirm the move with a message (converted back to 1-indexed column numbers)
+      puts "Moved a piece from #{from + 1} to #{to + 1}"
+    else
+      # Message if player tries to place a larger piece on a smaller piece (against the game rules)
+      puts "You cannot place a larger piece on a smaller one!"
+    end
+  end
+
+  def check_win (game_board,tower_size)
+    # Check for victory - player wins if entire tower is on a peg other than peg 0 (column 1)
+    if game_board[1].size > tower_size or game_board[2].size > tower_size
+      @game_state = 1
+    end
   end
 
 	# 2. Create a game loop that finishes when the user either quits (for instance, by entering quit on the input line) or wins.
@@ -214,15 +192,13 @@ class ToH_Game
     game_board = [[10],[10],[10]]
 
     starting_post = 0
-    goal_post_1 = 1
-    goal_post_2 = 2
 
-    # Populate game board
+    # Populate game board so all pieces are in the first tower
     1.upto(tower_size) do |i|
       game_board[starting_post].push(1 + tower_size - i)
     end
 
-    #Loop until a game over state is reached
+    #Loop until the player wins or quits
     loop do
       # Render game state
       render(game_board, tower_size)
@@ -234,17 +210,18 @@ class ToH_Game
         move(game_board, new_input)
       end
 
-      # Check for victory
-      if game_board[starting_post].size < 2 and (game_board[goal_post_1].size > tower_size or game_board[goal_post_2].size > tower_size)
-        @game_state = 1
-      end
+      # Check to see if the player has won
+      check_win(game_board,tower_size)
 
       #break when user quits or wins
-      if @game_state == -1
+      if @game_state == -1 # if user has quit
+        #quit message
         puts "Bye, thanks for playing!"
         break
-      elsif @game_state == 1
+      elsif @game_state == 1 # if user has won
+        # render the board one last time
         render(game_board,tower_size)
+        # win message
         puts "You won! Congratulations!"
         break
       end
